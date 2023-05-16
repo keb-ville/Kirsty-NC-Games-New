@@ -11,8 +11,11 @@ const {
   getCategories,
   getApi,
   getReviewById,
+  getReviews,
+  getReviewComments,
 } = require("./controllers/controller");
 
+app.use(express.json());
 //TASK 3
 app.get("/api", getApi);
 //TASK 3.5
@@ -20,7 +23,9 @@ app.get("/api/categories", getCategories);
 //TASK 4
 app.get("/api/reviews/:review_id", getReviewById);
 //TASK 5
-// app.get("/api/reviews", getReviews);
+app.get("/api/reviews", getReviews);
+///TASK 6
+app.get("/api/reviews/:review_id/comments", getReviewComments);
 
 //ERROR HANDLING
 app.use(handlePsqlErrors);
