@@ -3,7 +3,9 @@ const {
   fetchReviewById,
   fetchReviews,
   fetchCommentsByReviewId,
+  createComment,
 } = require("../models/models");
+
 const endpoints = require("../endpoints.json");
 /////TASK 3.5
 exports.getApi = (req, res, next) => {
@@ -47,10 +49,22 @@ exports.getReviewComments = (req, res, next) => {
   const review = req.params;
   fetchCommentsByReviewId(review)
     .then((comments) => {
-      console.log(comments, "COMMENTSSSSSS");
       res.status(200).send(comments);
     })
     .catch((err) => {
       next(err);
     });
+};
+///////TASK 7
+exports.postNewComment = (request, response, next) => {
+  const { username, body } = request.body;
+  const reviewId = request.params.review_id;
+  if (!username || !body) {
+    return response.status(400).send({ message: "Invalid Request" });
+  }
+  createComment(username, body, reviewId)
+    .then((createdComment) => {
+      response.status(201).send(createdComment);
+    })
+    .catch(next);
 };

@@ -4,7 +4,6 @@ const seed = require("../db/seeds/seed");
 const { app } = require("../app");
 const data = require("../db/data/test-data");
 const endpointsJSON = require("../endpoints.json");
-// require("jest-sorted");
 
 beforeEach(() => {
   return seed(data); // seed the db with test data
@@ -134,9 +133,9 @@ describe("/api/reviews", () => {
             //or string depending on if you used COUNT in query
           });
         });
-        ///////TASK 6
       });
   });
+  ///////TASK 6
   describe("GET /api/reviews/:review_id/comments", () => {
     test("should respond with an array of comments for the given review ID with properties which are of the correct data type", () => {
       return request(app)
@@ -153,6 +152,105 @@ describe("/api/reviews", () => {
             });
           });
         });
+    });
+    test("should respond with status 400 if the review ID is invalid ", () => {
+      return request(app)
+        .get("/api/reviews/not-an-id/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid Request");
+        });
+    });
+    test("should respond with status 404 if the review ID is non existent ", () => {
+      return request(app)
+        .get("/api/reviews/9999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Not Found");
+        });
+    });
+    test("Responds with array of all comment descending", () => {
+      return request(app)
+        .get("/api/reviews/2/comments")
+        .expect(200)
+        .then((result) => {
+          expect(result.body).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+    ///////TASK 7
+    describe("POST /api/reviews/:review_id/comments", () => {
+      test("should respond with a 201 and an object with properties of username and body ", () => {
+        return request(app)
+          .post("/api/reviews/1/comments")
+          .expect(201)
+          .send({ username: "bainesface", body: "I loved this game too!" })
+          .then((response) => {
+            expect(response.body.review_id).toBe(1);
+            expect(response.body.author).toBe("bainesface");
+            expect(response.body.body).toBe("I loved this game too!");
+          });
+      });
+      test("should ignore other additional properties that are passed", () => {
+        return request(app)
+          .post("/api/reviews/1/comments")
+          .expect(201)
+          .send({
+            username: "bainesface",
+            body: "I loved this game too!",
+            extraProp: "extra things",
+          })
+          .then((response) => {
+            expect(response.body.review_id).toBe(1);
+            expect(response.body.author).toBe("bainesface");
+            expect(response.body.body).toBe("I loved this game too!");
+            expect(response.body).not.toHaveProperty("extraProp");
+          });
+      });
+      test("should respond with a status 400 when an invalid ID is passed", () => {
+        return request(app)
+          .post("/api/reviews/not-an-id/comments")
+          .expect(400)
+          .send({
+            username: "bainesface",
+            body: "I loved this game too!",
+          })
+          .then((response) => {
+            expect(response.body.message).toBe("Invalid Request");
+          });
+      });
+      test("should respond with a status 404 when a non existent ID is passed", () => {
+        return request(app)
+          .post("/api/reviews/9999/comments")
+          .expect(404)
+          .send({
+            username: "bainesface",
+            body: "I loved this game too!",
+          })
+          .then((response) => {
+            expect(response.body.message).toBe("Not Found");
+          });
+      });
+      test("should respond with a status 400 when missing required fields, e.g. no username or body properties passed", () => {
+        return request(app)
+          .post("/api/reviews/1/comments")
+          .expect(400)
+          .send({}) //can have one or none
+          .then((response) => {
+            expect(response.body.message).toBe("Invalid Request");
+          });
+      });
+      test("should respond with a status 404 when username does not exist", () => {
+        return request(app)
+          .post("/api/reviews/1/comments")
+          .expect(404)
+          .send({
+            username: "bananas",
+            body: "Wooooooo bananas",
+          })
+          .then((response) => {
+            expect(response.body.message).toBe("Not Found");
+          });
+      });
     });
   });
 });

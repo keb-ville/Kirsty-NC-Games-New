@@ -50,3 +50,16 @@ exports.fetchCommentsByReviewId = (fetchedComments) => {
       return response.rows;
     });
 };
+////////TASK 7
+exports.createComment = (username, body, reviewId) => {
+  return db
+    .query(
+      `INSERT INTO comments (review_id, author, body)
+      VALUES ($1, $2, $3)
+      RETURNING*;`,
+      [reviewId, username, body]
+    )
+    .then((response) => {
+      return response.rows[0];
+    });
+};

@@ -13,6 +13,7 @@ const {
   getReviewById,
   getReviews,
   getReviewComments,
+  postNewComment,
 } = require("./controllers/controller");
 
 app.use(express.json());
@@ -26,7 +27,8 @@ app.get("/api/reviews/:review_id", getReviewById);
 app.get("/api/reviews", getReviews);
 ///TASK 6
 app.get("/api/reviews/:review_id/comments", getReviewComments);
-
+///TASK 7
+app.post("/api/reviews/:review_id/comments", postNewComment);
 //ERROR HANDLING
 app.use(handlePsqlErrors);
 app.use(handle400Errors);
