@@ -63,3 +63,18 @@ exports.createComment = (username, body, reviewId) => {
       return response.rows[0];
     });
 };
+/////TASK 8
+exports.patchVotesById = (inc_votes, reviewId) => {
+
+  return db
+    .query(
+      `UPDATE reviews SET votes = votes + $1 WHERE review_id = $2 RETURNING*;`,
+      [inc_votes, reviewId]
+    )
+    .then((response) => {
+      if (!response.rows.length) {
+        return Promise.reject({ status: 404, message: "Not Found" });
+      }
+      return response.rows[0];
+    });
+};

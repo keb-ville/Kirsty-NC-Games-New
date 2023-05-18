@@ -14,6 +14,7 @@ const {
   getReviews,
   getReviewComments,
   postNewComment,
+  updateVotesById,
 } = require("./controllers/controller");
 
 app.use(express.json());
@@ -29,6 +30,9 @@ app.get("/api/reviews", getReviews);
 app.get("/api/reviews/:review_id/comments", getReviewComments);
 ///TASK 7
 app.post("/api/reviews/:review_id/comments", postNewComment);
+///TASK 8
+app.patch("/api/reviews/:review_id", updateVotesById);
+
 //ERROR HANDLING
 app.use(handlePsqlErrors);
 app.use(handle400Errors);

@@ -252,5 +252,27 @@ describe("/api/reviews", () => {
           });
       });
     });
+    //////TASK 8
+    describe.only("PATCH /api/reviews/:review_id", () => {
+      test("should respond with a status 200 and an updated review with increased votes", () => {
+        return request(app)
+          .patch("/api/reviews/1")
+          .expect(200)
+          .send({ inc_votes: 100 })
+          .then((result) => {
+            expect(result.body.review_id).toBe(1);
+            expect(result.body.title).toBe("Agricola");
+            expect(result.body.designer).toBe("Uwe Rosenberg");
+            expect(result.body.owner).toBe("mallionaire");
+            expect(result.body.review_img_url).toBe(
+              "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
+            );
+            expect(result.body.review_body).toBe("Farmyard fun!");
+            expect(result.body.category).toBe("euro game");
+            expect(result.body.created_at).toBe("2021-01-18T10:00:20.514Z");
+            expect(result.body.votes).toBe(101);
+          });
+      });
+    });
   });
 });

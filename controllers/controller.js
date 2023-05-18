@@ -4,6 +4,7 @@ const {
   fetchReviews,
   fetchCommentsByReviewId,
   createComment,
+  patchVotesById,
 } = require("../models/models");
 
 const endpoints = require("../endpoints.json");
@@ -56,15 +57,29 @@ exports.getReviewComments = (req, res, next) => {
     });
 };
 ///////TASK 7
-exports.postNewComment = (request, response, next) => {
+exports.postNewComment = (req, res, next) => {
   const { username, body } = request.body;
-  const reviewId = request.params.review_id;
+  const reviewId = req.params.review_id;
   if (!username || !body) {
-    return response.status(400).send({ message: "Invalid Request" });
+    return res.status(400).send({ message: "Invalid Request" });
   }
   createComment(username, body, reviewId)
     .then((createdComment) => {
-      response.status(201).send(createdComment);
+      res.status(201).send(createdComment);
     })
     .catch(next);
+};
+
+/////TASK 8
+exports.updateVotesById = (req, res, next) => {
+  const { review_id } = req.params;
+  const { inc_votes } = req.body;
+  console.log(inc_votes, review_id);
+  patchVotesById(inc_votes, review_id)
+    .then((updatedReview) => {
+      res.status(200).send(updatedReview);
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
