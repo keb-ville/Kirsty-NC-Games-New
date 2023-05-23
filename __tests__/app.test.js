@@ -253,7 +253,7 @@ describe("/api/reviews", () => {
       });
     });
     //////TASK 8
-    describe.only("PATCH /api/reviews/:review_id", () => {
+    describe("PATCH /api/reviews/:review_id", () => {
       test("should respond with a status 200 and an updated review with increased votes", () => {
         return request(app)
           .patch("/api/reviews/1")
@@ -276,3 +276,14 @@ describe("/api/reviews", () => {
     });
   });
 });
+/////TASK 9
+describe("DELETE /api/comments", () => {
+  test("should respond with a status 204 and no content", () => {
+    return request(app).delete("/api/comments/5").expect(204);
+  });
+});
+//Status 404, non existent ID, e.g 999
+//Status 400, invalid ID, e.g "not-an-id"
+
+
+/////TASK 10

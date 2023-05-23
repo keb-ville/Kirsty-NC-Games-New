@@ -5,6 +5,7 @@ const {
   fetchCommentsByReviewId,
   createComment,
   patchVotesById,
+  deleteCommentById,
 } = require("../models/models");
 
 const endpoints = require("../endpoints.json");
@@ -58,7 +59,7 @@ exports.getReviewComments = (req, res, next) => {
 };
 ///////TASK 7
 exports.postNewComment = (req, res, next) => {
-  const { username, body } = request.body;
+  const { username, body } = req.body;
   const reviewId = req.params.review_id;
   if (!username || !body) {
     return res.status(400).send({ message: "Invalid Request" });
@@ -83,3 +84,15 @@ exports.updateVotesById = (req, res, next) => {
       next(err);
     });
 };
+/////TASK 9
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  return deleteCommentById(comment_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+////TASK 10
