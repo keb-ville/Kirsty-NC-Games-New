@@ -52,6 +52,7 @@ exports.fetchCommentsByReviewId = (fetchedComments) => {
 };
 ////////TASK 7
 exports.createComment = (username, body, reviewId) => {
+  
   return db
     .query(
       `INSERT INTO comments (review_id, author, body)
@@ -71,6 +72,7 @@ exports.patchVotesById = (inc_votes, reviewId) => {
       [inc_votes, reviewId]
     )
     .then((response) => {
+      console.log(response.rows)
       if (!response.rows.length) {
         return Promise.reject({ status: 404, message: "Not Found" });
       }

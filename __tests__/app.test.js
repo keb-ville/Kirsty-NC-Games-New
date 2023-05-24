@@ -273,6 +273,53 @@ describe("/api/reviews", () => {
             expect(result.body.votes).toBe(101);
           });
       });
+      test("should respond with a status 400 when an invalid ID is passed", () => {
+        return request(app)
+          .patch("/api/reviews/not-an-id")
+          .expect(400)
+          .send({ inc_votes: 100 })
+          .then((result) => {
+            expect(result.body.message).toBe("Invalid Request");
+          });
+      })
+      test("should respond with a status 404 when a non existent ID is passed", () => {
+        return request(app)
+          .patch("/api/reviews/9999")
+          .expect(404)
+          .send({ inc_votes: 100 })
+          .then((result) => {
+            expect(result.body.message).toBe("Not Found");
+          })
+
+      })
+      test("should respond with a status 400 when incorrect body id passed", () => {
+        return request(app)
+          .patch("/api/reviews/1")
+          .expect(400)
+          .send({inc_votes: "Wooooo bananas"})
+          .then((result) => {
+            expect(result.body.message).toBe("Invalid Request");
+          })
+          })
+      // test.only("should respond with 200 and not update review if inc_votes is missing and return the original review object", () => {
+      //   return request(app)
+      //     .patch("/api/reviews/1")
+      //     .expect(200)
+      //     .send({})
+      //     .then((result) => {
+      //       expect(result.body.review_id).toBe(1);
+      //       expect(result.body.title).toBe("Agricola");
+      //       expect(result.body.designer).toBe("Uwe Rosenberg");
+      //       expect(result.body.owner).toBe("mallionaire");
+      //       expect(result.body.review_img_url).toBe(
+      //         "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
+      //       );
+      //       expect(result.body.review_body).toBe("Farmyard fun!");
+      //       expect(result.body.category).toBe("euro game");
+      //       expect(result.body.created_at).toBe("2021-01-18T10:00:20.514Z");
+      //       expect(result.body.votes).toBe(1);
+      //     })
+      // })
     });
   });
 });

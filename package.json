@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
-    "sql-playground": "psql -f ./playground.sql > playground.txt",
     "seed": "node ./db/seeds/run-seed.js",
     "test": "jest",
     "prepare": "husky install"
