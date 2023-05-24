@@ -6,6 +6,7 @@ const {
   createComment,
   patchVotesById,
   deleteCommentById,
+  fetchUsers,
 } = require("../models/models");
 
 const endpoints = require("../endpoints.json");
@@ -75,7 +76,6 @@ exports.postNewComment = (req, res, next) => {
 exports.updateVotesById = (req, res, next) => {
   const { review_id } = req.params;
   const { inc_votes } = req.body;
-  console.log(inc_votes, review_id);
   patchVotesById(inc_votes, review_id)
     .then((updatedReview) => {
       res.status(200).send(updatedReview);
@@ -96,3 +96,12 @@ exports.deleteComment = (req, res, next) => {
     });
 };
 ////TASK 10
+exports.getUsers = (req, res, next) => {
+  return fetchUsers()
+    .then((users) => {
+      res.status(200).send({ users: users });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};

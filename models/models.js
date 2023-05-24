@@ -88,3 +88,9 @@ exports.deleteCommentById = (comment_id) => {
     });
 };
 ////TASK 10
+
+exports.fetchUsers = () => {
+  return db.query(`SELECT * FROM users;`).then(({ rows }) => {
+    return rows;
+  });
+};

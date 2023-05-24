@@ -281,9 +281,29 @@ describe("DELETE /api/comments", () => {
   test("should respond with a status 204 and no content", () => {
     return request(app).delete("/api/comments/5").expect(204);
   });
+  test("should respond with a 404 if the comment ID does not exist", () => {
+    return request(app).delete("/api/comments/9999").expect(404);
+  });
+  test("should respond with a status 400 if the comment ID is invalid", () => {
+    return request(app).delete("/api/comments/not-an-id").expect(400);
+  });
 });
-//Status 404, non existent ID, e.g 999
-//Status 400, invalid ID, e.g "not-an-id"
-
-
 /////TASK 10
+describe("GET /api/users", () => {
+  test("should respond with an array of user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users).toBeInstanceOf(Array);
+        expect(body.users).toHaveLength(4);
+        body.users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
+      });
+  });
+});

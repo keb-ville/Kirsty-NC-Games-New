@@ -16,6 +16,7 @@ const {
   postNewComment,
   updateVotesById,
   deleteComment,
+  getUsers,
 } = require("./controllers/controller");
 
 app.use(express.json());
@@ -35,6 +36,9 @@ app.post("/api/reviews/:review_id/comments", postNewComment);
 app.patch("/api/reviews/:review_id", updateVotesById);
 //TASK 9
 app.delete("/api/comments/:comment_id", deleteComment);
+//TASK 10
+app.get("/api/users", getUsers);
+
 //ERROR HANDLING
 app.use(handlePsqlErrors);
 app.use(handle400Errors);
