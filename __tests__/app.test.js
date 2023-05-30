@@ -281,7 +281,7 @@ describe("/api/reviews", () => {
           .then((result) => {
             expect(result.body.message).toBe("Invalid Request");
           });
-      })
+      });
       test("should respond with a status 404 when a non existent ID is passed", () => {
         return request(app)
           .patch("/api/reviews/9999")
@@ -289,18 +289,17 @@ describe("/api/reviews", () => {
           .send({ inc_votes: 100 })
           .then((result) => {
             expect(result.body.message).toBe("Not Found");
-          })
-
-      })
+          });
+      });
       test("should respond with a status 400 when incorrect body id passed", () => {
         return request(app)
           .patch("/api/reviews/1")
           .expect(400)
-          .send({inc_votes: "Wooooo bananas"})
+          .send({ inc_votes: "Wooooo bananas" })
           .then((result) => {
             expect(result.body.message).toBe("Invalid Request");
-          })
-          })
+          });
+      });
       // test.only("should respond with 200 and not update review if inc_votes is missing and return the original review object", () => {
       //   return request(app)
       //     .patch("/api/reviews/1")
