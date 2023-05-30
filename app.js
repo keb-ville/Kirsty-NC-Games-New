@@ -1,3 +1,4 @@
+const cors = require("cors");
 const express = require("express");
 const {
   handlePsqlErrors,
@@ -7,6 +8,7 @@ const {
 
 const app = express();
 
+app.use(cors());
 const {
   getCategories,
   getApi,
