@@ -21,22 +21,68 @@ exports.fetchReviewById = (id) => {
       return result.rows[0];
     });
 };
-//////TASK 5
-exports.fetchReviews = () => {
-  return db
-    .query(
-      `SELECT owner, title, reviews.review_id, category, review_img_url, reviews.created_at, reviews.votes, designer, COUNT(comments.review_id)::INT as comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id GROUP BY reviews.review_id ORDER BY reviews.created_at DESC;`
-    )
-    .then((response) => {
-      return response.rows;
-    });
-}; //select columns from the joined tables
-//it calculates the number of comments for each review using COUNT and adds this result to comment count
-//left join will join the reviews table with the comments table using the review_id column
-//GROUP BY groups results by the review_id column. the query will calculate the num of comments for each review so results need to be grouped by review_id to aggregate the comments correctly
-//ORDER BY specifies the order in which the results will be sorted
+////////TASK 5
+//r.votes r.owner - this is allowed - it's a simple practice in SQL - keeps the query brief
+//r and c are aliases in SQL
 
-//////TASK 6
+// exports.fetchReviews = () => {
+//   return db
+//     .query(
+//       `SELECT owner, title, reviews.review_id, category, review_img_url, reviews.created_at, reviews.votes, designer, COUNT(comments.review_id)::INT as comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id GROUP BY reviews.review_id ORDER BY reviews.created_at DESC;`
+//     )
+//     .then((response) => {
+//       return response.rows;
+//     });
+// };
+
+/////TASK 11
+exports.fetchReviews = (
+  sort_by = "created_at",
+  order_by = "DESC",
+  category
+) => {
+  return db
+    .query(`SELECT slug FROM categories`)
+    .then((result) => {
+      const categoryArr = result.rows;
+      const categories = categoryArr.map((category) => {
+        return category.slug;
+      });
+      return categories;
+    })
+    .then((validCategory) => {
+      const validSortBy = ["created_at", "votes", "comment_count"];
+      const validOrderBy = ["asc", "desc", "ASC", "DESC"];
+
+      if (sort_by && !validSortBy.includes(sort_by)) {
+        return Promise.reject("Invalid query");
+      }
+      if (category && !validCategory.includes(category)) {
+        return Promise.reject("Category not found");
+      }
+      if (order_by && !validOrderBy.includes(order_by)) {
+        return Promise.reject("Invalid query");
+      }
+
+      let queryString =
+        "SELECT reviews.*, COUNT(comments.review_id)::INT AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id ";
+      const selectedCategory = category;
+      const sorted = sort_by; //|| 'created_at' this is if you don't set them as default
+      const ordered = order_by;
+      const queryInputs = [];
+      if (selectedCategory) {
+        queryInputs.push(selectedCategory);
+        queryString += `WHERE reviews.category = $1`;
+      }
+      queryString += ` GROUP BY reviews.review_id ORDER BY reviews.${sorted} ${ordered};`;
+      return db.query(queryString, queryInputs);
+    })
+    .then((result) => {
+      return result.rows;
+    });
+};
+
+////////TASK 6
 exports.fetchCommentsByReviewId = (fetchedComments) => {
   return db
     .query(
@@ -52,7 +98,6 @@ exports.fetchCommentsByReviewId = (fetchedComments) => {
 };
 ////////TASK 7
 exports.createComment = (username, body, reviewId) => {
-  
   return db
     .query(
       `INSERT INTO comments (review_id, author, body)
@@ -72,7 +117,6 @@ exports.patchVotesById = (inc_votes, reviewId) => {
       [inc_votes, reviewId]
     )
     .then((response) => {
-      console.log(response.rows)
       if (!response.rows.length) {
         return Promise.reject({ status: 404, message: "Not Found" });
       }
@@ -90,7 +134,6 @@ exports.deleteCommentById = (comment_id) => {
     });
 };
 ////TASK 10
-
 exports.fetchUsers = () => {
   return db.query(`SELECT * FROM users;`).then(({ rows }) => {
     return rows;

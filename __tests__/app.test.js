@@ -12,18 +12,21 @@ beforeEach(() => {
 afterAll(() => {
   return db.end(); // close the db connection
 });
-//////TASK 3.5
+///////TASK 3.5
 describe("/api", () => {
   it("200: GET- responds with a JSON object containing all endpoints", () => {
     return request(app)
       .get("/api")
       .expect(200)
-      .then(({ body }) => {
-        expect(body.endpoints).toEqual(endpointsJSON);
+      .then((response) => {
+        const { endpoints } = response.body;
+        expect(endpoints).toEqual(endpointsJSON);
+        //this checks the form that the JSON object should take
+        expect(endpoints).toMatchObject(endpointsJSON);
       });
   });
 });
-////TASK 3
+///////TASK 3
 describe("/api/categories", () => {
   it("200 GET - responds with an array of category objects", () => {
     return request(app)
@@ -252,7 +255,7 @@ describe("/api/reviews", () => {
           });
       });
     });
-    //////TASK 8
+    ///////TASK 8
     describe("PATCH /api/reviews/:review_id", () => {
       test("should respond with a status 200 and an updated review with increased votes", () => {
         return request(app)
@@ -334,7 +337,7 @@ describe("DELETE /api/comments", () => {
     return request(app).delete("/api/comments/not-an-id").expect(400);
   });
 });
-/////TASK 10
+///////TASK 10
 describe("GET /api/users", () => {
   test("should respond with an array of user objects", () => {
     return request(app)
@@ -349,6 +352,120 @@ describe("GET /api/users", () => {
             name: expect.any(String),
             avatar_url: expect.any(String),
           });
+        });
+      });
+  });
+});
+///////TASK 11
+describe("GET /api/reviews QUERY", () => {
+  test("200: GET -responds with an array of reviews with specified category", () => {
+    return request(app)
+      .get("/api/reviews?category=dexterity")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews.length).toBe(1);
+        expect(
+          body.reviews.every((review) => review.category === "dexterity")
+        ).toBe(true);
+      });
+  });
+  test("200: GET- responds with an array of reviews in specified sort_by", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=votes")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews).toBeInstanceOf(Array);
+        expect(body.reviews).toHaveLength(13);
+        body.reviews.forEach((review) => {
+          expect(review).toMatchObject({
+            owner: expect.any(String),
+            title: expect.any(String),
+            review_id: expect.any(Number),
+            category: expect.any(String),
+            review_img_url: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            designer: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+        expect(body.reviews).toBeSortedBy("votes", {
+          descending: true,
+        });
+      });
+  });
+  test("200: GET- responds with an array of reviews in specified order", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=votes&order_by=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews).toBeInstanceOf(Array);
+        expect(body.reviews).toHaveLength(13);
+        body.reviews.forEach((review) => {
+          expect(review).toMatchObject({
+            owner: expect.any(String),
+            title: expect.any(String),
+            review_id: expect.any(Number),
+            category: expect.any(String),
+            review_img_url: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            designer: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+        expect(body.reviews).toBeSortedBy("votes", {
+          descending: false,
+        });
+      });
+  });
+  test("200: GET- responds with an array of reviews with a default order_by", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=votes")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews).toBeInstanceOf(Array);
+        expect(body.reviews).toHaveLength(13);
+        body.reviews.forEach((review) => {
+          expect(review).toMatchObject({
+            owner: expect.any(String),
+            title: expect.any(String),
+            review_id: expect.any(Number),
+            category: expect.any(String),
+            review_img_url: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            designer: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+        expect(body.reviews).toBeSortedBy("votes", {
+          descending: true,
+        });
+      });
+  });
+  test("200: GET- responds with an array of reviews with a default sort_by", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews).toBeInstanceOf(Array);
+        expect(body.reviews).toHaveLength(13);
+        body.reviews.forEach((review) => {
+          expect(review).toMatchObject({
+            owner: expect.any(String),
+            title: expect.any(String),
+            review_id: expect.any(Number),
+            category: expect.any(String),
+            review_img_url: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            designer: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+        expect(body.reviews).toBeSortedBy("created_at", {
+          descending: true,
         });
       });
   });
