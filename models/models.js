@@ -6,19 +6,39 @@ exports.fetchCategories = () => {
     return rows;
   });
 };
-///////TASK 4
+///////TASK 4 - SELECT * FROM reviews WHERE review_id = $1
+////TASK 12 - added ORDER BY comments.created_at DESC to SQL query
 exports.fetchReviewById = (id) => {
   return db
-    .query(`SELECT * FROM reviews WHERE reviews.review_id = $1;`, [id])
+    .query(
+      `
+      SELECT reviews.*, COUNT(comments.review_id) AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE reviews.review_id = $1 GROUP BY reviews.review_id
+      `,
+      [id]
+    )
     .then((result) => {
       if (result.rows.length === 0) {
-        //don't have !NaN
         return Promise.reject({
           status: 404,
           msg: `No review found for review_id ${id}`,
         });
       }
       return result.rows[0];
+    });
+};
+//////TASK 12
+exports.fetchCommentsByReviewId = (id) => {
+  return db
+    .query(
+      `
+  SELECT * FROM comments
+  WHERE review_id = $1
+  ORDER BY created_at DESC
+  `,
+      [id]
+    )
+    .then((result) => {
+      return result.rows;
     });
 };
 ////////TASK 5
@@ -34,7 +54,6 @@ exports.fetchReviewById = (id) => {
 //       return response.rows;
 //     });
 // };
-
 /////TASK 11
 exports.fetchReviews = (
   sort_by = "created_at",
@@ -54,16 +73,24 @@ exports.fetchReviews = (
       const validSortBy = ["created_at", "votes", "comment_count"];
       const validOrderBy = ["asc", "desc", "ASC", "DESC"];
 
-      if (sort_by && !validSortBy.includes(sort_by)) {
-        return Promise.reject("Invalid query");
-      }
-      if (category && !validCategory.includes(category)) {
-        return Promise.reject("Category not found");
-      }
-      if (order_by && !validOrderBy.includes(order_by)) {
-        return Promise.reject("Invalid query");
+      if (
+        (sort_by && !validSortBy.includes(sort_by)) ||
+        (order_by && !validOrderBy.includes(order_by))
+      ) {
+        return Promise.reject({
+          status: 400,
+          msg: "Invalid Request",
+        });
       }
 
+      if (category && !validCategory.includes(category)) {
+        return Promise.reject({
+          status: 404,
+          msg: "Not Found",
+        });
+      }
+      //if the promise.rejects aren't here, it will throw another SQL error that is not caught in the error handling middleware
+      //you need to create a custom error to resolve in if logics
       let queryString =
         "SELECT reviews.*, COUNT(comments.review_id)::INT AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id ";
       const selectedCategory = category;
@@ -81,7 +108,6 @@ exports.fetchReviews = (
       return result.rows;
     });
 };
-
 ////////TASK 6
 exports.fetchCommentsByReviewId = (fetchedComments) => {
   return db
@@ -90,9 +116,9 @@ exports.fetchCommentsByReviewId = (fetchedComments) => {
       [fetchedComments.review_id]
     )
     .then((response) => {
-      if (!response.rows.length) {
-        return Promise.reject({ status: 404, message: "Not Found" });
-      }
+      // if (!response.rows.length) {
+      //   return Promise.reject({ status: 404, message: "Not Found" });
+      // } this is not needed as no comments isn't a 404, it's a 200
       return response.rows;
     });
 };

@@ -10,10 +10,12 @@ const {
 const app = express();
 
 app.use(cors());
+
 const {
   getCategories,
   getApi,
   getReviewById,
+  getCommentsByReviewId,
   getReviews,
   getReviewComments,
   postNewComment,
@@ -27,8 +29,10 @@ app.use(express.json());
 app.get("/api", getApi);
 ///TASK 3.5
 app.get("/api/categories", getCategories);
-///TASK 4
+///TASK 4 ////TASK 12
 app.get("/api/reviews/:review_id", getReviewById);
+//TASK 12
+app.get("/api/reviews/:review_id", getCommentsByReviewId);
 ///TASK 5 & TASK 11
 app.get("/api/reviews", getReviews);
 ///TASK 6

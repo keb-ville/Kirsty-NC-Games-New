@@ -12,7 +12,6 @@ const {
 const endpoints = require("../endpoints.json");
 ///////TASK 3.5
 exports.getApi = (req, res) => {
-  console.log({endpoints}, "ENDPOINTS");
   res.status(200).send({ endpoints }); //send back the endpoints
   //destructure to get the key and value
 };
@@ -26,12 +25,26 @@ exports.getCategories = (req, res, next) => {
       next(err);
     });
 };
-//////TASK 4
+//////TASK 4 ///TASK 12
 exports.getReviewById = (req, res, next) => {
   const { review_id } = req.params; // destructuring id from params
   fetchReviewById(review_id)
     .then((review) => {
       res.status(200).send({ review });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+/////TASK 12
+exports.getCommentsByReviewId = (req, res, next) => {
+  const { review_id } = req.params;
+  const reviewIdPromise = fetchReviewById(review_id);
+  const commentsPromise = fetchCommentsByReviewId(review_id);
+
+  Promise.all([commentsPromise, reviewIdPromise])
+    .then(([comments]) => {
+      res.status(200).send({ comments });
     })
     .catch((err) => {
       next(err);
@@ -45,10 +58,10 @@ exports.getReviews = (req, res, next) => {
       res.status(200).send({ reviews }); //send back the reviews with appropriate key
     })
     .catch((err) => {
+      // console.log(err, "ERROR");
       next(err);
     });
 }; //catch block is functionally redundant for ticket 5 - needs to be added for 11
-
 ///////TASK 6
 exports.getReviewComments = (req, res, next) => {
   const review = req.params;
@@ -73,7 +86,6 @@ exports.postNewComment = (req, res, next) => {
     })
     .catch(next);
 };
-
 ///////TASK 8
 exports.updateVotesById = (req, res, next) => {
   const { review_id } = req.params;
@@ -107,4 +119,3 @@ exports.getUsers = (req, res, next) => {
       next(err);
     });
 };
-/////TASK 11
