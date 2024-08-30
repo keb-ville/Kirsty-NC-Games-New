@@ -7,13 +7,9 @@ const {
   handle404Errors,
 } = require("./controllers/error-controller");
 
-const app = express();
-
-app.use(cors());
-
 const {
-  getCategories,
-  getApi,
+  // getCategories,
+  // getApi,
   getReviewById,
   getCommentsByReviewId,
   getReviews,
@@ -21,30 +17,45 @@ const {
   postNewComment,
   updateVotesById,
   deleteComment,
-  getUsers,
+  // getUsers,
 } = require("./controllers/controller");
 
+const apiRouter = require("./routers/api-router");
+
+const app = express();
+
+app.use(cors());
+
 app.use(express.json());
+// TASK 15
+app.use("/api", apiRouter);
+
+app.all("*", (req, res, next) => {
+  res.status(404).send({
+    msg: "Path not found!",
+  });
+});
+
 ///TASK 3
-app.get("/api", getApi);
+// app.get("/api", getApi);
 ///TASK 3.5
-app.get("/api/categories", getCategories);
+// app.get("/api/categories", getCategories);
 ///TASK 4 ////TASK 12
-app.get("/api/reviews/:review_id", getReviewById);
+// app.get("/api/reviews/:review_id", getReviewById);
 //TASK 12
 app.get("/api/reviews/:review_id", getCommentsByReviewId);
 ///TASK 5 & TASK 11
-app.get("/api/reviews", getReviews);
+// app.get("/api/reviews", getReviews);
 ///TASK 6
-app.get("/api/reviews/:review_id/comments", getReviewComments);
+// app.get("/api/reviews/:review_id/comments", getReviewComments);
 ///TASK 7
-app.post("/api/reviews/:review_id/comments", postNewComment);
+// app.post("/api/reviews/:review_id/comments", postNewComment);
 ///TASK 8
-app.patch("/api/reviews/:review_id", updateVotesById);
+// app.patch("/api/reviews/:review_id", updateVotesById);
 ///TASK 9
-app.delete("/api/comments/:comment_id", deleteComment);
+// app.delete("/api/comments/:comment_id", deleteComment);
 ///TASK 10
-app.get("/api/users", getUsers);
+// app.get("/api/users", getUsers);
 
 ///ERROR HANDLING MIDDLEWARE
 app.use(handleCustomErrors);

@@ -1,7 +1,7 @@
 # Northcoders House of Games API
 
 NC Games API
-Built By Jodie Cheung
+Built By Kirsty Butterworth
 
 ## **Back-End**
 

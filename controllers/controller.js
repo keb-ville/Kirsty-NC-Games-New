@@ -7,6 +7,9 @@ const {
   patchVotesById,
   deleteCommentById,
   fetchUsers,
+  fetchUserByUsername,
+  patchVotesByCommentsId,
+  createReview,
 } = require("../models/models");
 
 const endpoints = require("../endpoints.json");
@@ -116,6 +119,44 @@ exports.getUsers = (req, res, next) => {
       res.status(200).send({ users: users });
     })
     .catch((err) => {
+      next(err);
+    });
+};
+////TASK 16
+exports.getUserByUsername = (req, res, next) => {
+  const { username } = req.params;
+  return fetchUserByUsername(username)
+    .then((user) => {
+      res.status(200).send({ user });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+//////////// TASK 18
+exports.updateVotesByCommentId = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { inc_votes } = req.body;
+  patchVotesByCommentsId(inc_votes, comment_id)
+    .then((updateVotes) => {
+      res.status(200).send({ updateVotes });
+    })
+    .catch((err) => {
+      console.log(err);
+      next(err);
+    });
+};
+
+exports.postNewReview = (req, res, next) => {
+  const { title, designer, owner, review_body, category, review_img_url } =
+    req.body;
+  createReview(title, designer, owner, review_body, category, review_img_url)
+    .then((review) => {
+      console.log(review);
+      res.status(201).send(review);
+    })
+    .catch((err) => {
+      console.log(err);
       next(err);
     });
 };

@@ -111,15 +111,22 @@ exports.fetchReviews = (
 ////////TASK 6
 exports.fetchCommentsByReviewId = (fetchedComments) => {
   return db
-    .query(
-      `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC;`,
-      [fetchedComments.review_id]
-    )
+    .query(`SELECT * FROM reviews WHERE review_id = $1`, [
+      fetchedComments.review_id,
+    ])
     .then((response) => {
-      // if (!response.rows.length) {
-      //   return Promise.reject({ status: 404, message: "Not Found" });
-      // } this is not needed as no comments isn't a 404, it's a 200
-      return response.rows;
+      if (response.rows.length === 0) {
+        return Promise.reject({ status: 404, message: "Not Found" });
+      } else {
+        return db
+          .query(
+            `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC;`,
+            [fetchedComments.review_id]
+          )
+          .then((response) => {
+            return response.rows;
+          });
+      }
     });
 };
 ////////TASK 7
@@ -164,4 +171,57 @@ exports.fetchUsers = () => {
   return db.query(`SELECT * FROM users;`).then(({ rows }) => {
     return rows;
   });
+};
+/////TASK 16
+exports.fetchUserByUsername = (username) => {
+  return db
+    .query(`SELECT * FROM users WHERE username = $1;`, [username])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, message: "Not found" });
+      }
+      return rows[0];
+    });
+};
+///////// TASK 18
+exports.patchVotesByCommentsId = (inc_votes, comment_id) => {
+  return db
+    .query(
+      `UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING*;`,
+      [inc_votes, comment_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, message: "Not Found" });
+      }
+      return rows[0];
+    });
+};
+/////TASK 19
+exports.createReview = (
+  title,
+  designer,
+  owner,
+  review_body,
+  category,
+  review_img_url
+) => {
+  return db
+    .query(
+      `INSERT INTO reviews (title, designer, owner, review_body, category, review_img_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;`,
+      [title, designer, owner, review_body, category, review_img_url]
+    )
+    .then((response) => {
+      const newReview = response.rows[0];
+      return db
+        .query(
+          `SELECT COUNT(comment_id)::INT AS comment_count FROM comments WHERE review_id = $1;`,
+          [newReview.review_id]
+        )
+        .then(({ rows }) => {
+          const commentCount = rows[0].comment_count;
+          newReview.comment_count = commentCount;
+          return newReview;
+        });
+    });
 };
